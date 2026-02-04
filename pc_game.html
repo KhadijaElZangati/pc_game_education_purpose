@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centre de Diagnostic Informatique - 1AC</title>
+    <style>
+        :root { --primary: #00d2ff; --secondary: #16213e; --bg: #0a0b1e; --success: #2ecc71; --error: #e74c3c; --text: #ecf0f1; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .container { width: 95%; max-width: 600px; background: #1a1a2e; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .screen { display: none; padding: 30px; }
+        .active { display: block; animation: slideIn 0.4s ease-out; }
+
+        /* UI Elements */
+        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .mission-badge { background: var(--secondary); border: 1px solid var(--primary); padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .stats-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; color: var(--primary); }
+
+        /* Le Boîtier (Diagramme Pro) */
+        .pc-case { position: relative; width: 300px; height: 420px; border: 2px solid var(--primary); margin: 0 auto; background: rgba(0, 210, 255, 0.05); border-radius: 10px; }
+        .component { position: absolute; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .component:hover { border-color: white; background: rgba(255,255,255,0.1); box-shadow: 0 0 15px var(--primary); }
+
+        /* Positions Précises */
+        #PSU { top: 15px; left: 15px; width: 110px; height: 90px; background: #f39c12; color: #000; }
+        #MOBO { top: 115px; left: 45px; width: 230px; height: 280px; background: #27ae60; opacity: 0.8; }
+        #FAN { top: 180px; left: 110px; width: 100px; height: 100px; background: #c0392b; border-radius: 50%; z-index: 5; }
+        
+        /* Panneau des Ports */
+        .port { width: 40px; height: 40px; right: -20px; border: 2px solid white; z-index: 10; font-size: 8px; }
+        #USB { top: 30px; background: #2ecc71; }
+        #HDMI { top: 85px; background: #2980b9; }
+        #ETH { top: 140px; background: #8e44ad; }
+        #PS2 { top: 195px; background: #95a5a6; }
+        #JACK { top: 250px; background: #ff0055; }
+        #COM { top: 305px; background: #34495e; }
+
+        /* Modals & Messages */
+        #feedback { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 50px; font-weight: bold; display: none; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .msg-correct { background: var(--success); color: white; }
+        .msg-error { background: var(--error); color: white; }
+
+        /* Buttons & Inputs */
+        input { width: 90%; padding: 15px; background: #0a0b1e; border: 1px solid var(--primary); border-radius: 8px; color: white; margin-bottom: 20px; text-align: center; font-size: 1rem; }
+        button { background: var(--primary); color: var(--secondary); border: none; padding: 15px 40px; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 1rem; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="feedback"></div>
+
+    <div class="container">
+        <div id="scr-intro" class="screen active">
+            <h1>Expert Système</h1>
+            <p>Identifiez-vous pour accéder à l'Unité Centrale.</p>
+            <input type="text" id="p-name" placeholder="Entrez votre nom complet">
+            <br>
+            <button onclick="boot()">Initialiser</button>
+        </div>
+
+        <div id="scr-game" class="screen">
+            <div class="stats-row">
+                <span>STABILITÉ : <span id="hp">100</span>%</span>
+                <span>SCORE : <span id="score">0</span></span>
+            </div>
+            
+            <div class="mission-badge">
+                <small style="color: var(--primary)">ORDRE DE MISSION :</small>
+                <div id="m-desc" style="font-size: 1.1rem; margin-top: 5px;"></div>
+            </div>
+
+            <div class="pc-case">
+                <div id="PSU" class="component" onclick="tap('PSU')">BLOC<br>ALIMENTATION</div>
+                <div id="MOBO" class="component" onclick="tap('MOBO')">CARTE MÈRE</div>
+                <div id="FAN" class="component" onclick="tap('FAN')">VENTILATEUR</div>
+                <div id="USB" class="component port" onclick="tap('USB')">USB</div>
+                <div id="HDMI" class="component port" onclick="tap('HDMI')">VGA / HDMI</div>
+                <div id="ETH" class="component port" onclick="tap('ETH')">RJ45</div>
+                <div id="PS2" class="component port" onclick="tap('PS2')">PS/2</div>
+                <div id="JACK" class="component port" onclick="tap('JACK')">AUDIO</div>
+                <div id="COM" class="component port" onclick="tap('COM')">COM</div>
+            </div>
+        </div>
+
+        <div id="scr-end" class="screen" style="text-align: center; background: white; color: black; border-radius: 0;">
+            <p>ATTESTATION DE RÉUSSITE</p>
+            <h1 id="res-name" style="color: black; border-bottom: 2px solid black; padding-bottom: 10px;"></h1>
+            <p>A démontré une maîtrise complète de l'Unité Centrale.</p>
+            <div style="font-size: 1.5rem; margin: 20px 0;">GRADE : <strong id="res-rank"></strong></div>
+            <p>Score Final : <span id="res-score"></span></p>
+            <button onclick="location.reload()" style="background: black; color: white;">REJOUER</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0, hp = 100, step = 0, pName = "";
+        
+        // Liste des missions avec la nouvelle formulation "Problème -> Action"
+        const missions = [
+            {d: "L'ordinateur ne reçoit aucune électricité. Que vas-tu faire ?", s: "PSU", m: "Correct ! Le Bloc d'Alimentation donne l'énergie."},
+            {d: "Le Processeur chauffe dangereusement ! Comment le refroidir ?", s: "FAN", m: "Parfait ! Le Ventilateur évacue la chaleur."},
+            {d: "Les composants sont déconnectés. Sur quoi dois-tu les brancher ?", s: "MOBO", m: "Exact ! La Carte Mère relie tout le système."},
+            {d: "Internet ne marche pas. Quel câble dois-tu brancher ?", s: "ETH", m: "Bien joué ! Le port Ethernet (RJ45) assure le réseau."},
+            {d: "L'écran reste noir. Sur quelle prise branches-tu le moniteur ?", s: "HDMI", m: "Félicitations ! C'est le port Vidéo (HDMI/VGA)."},
+            {d: "Tu as une très vieille souris à fiche ronde. Où la branches-tu ?", s: "PS2", m: "Bravo ! C'est le port PS/2, l'ancêtre de l'USB."},
+            {d: "Tu veux écouter de la musique. Sur quelle prise branches-tu le casque ?", s: "JACK", m: "Correct ! La prise verte est la sortie Audio."},
+            {d: "Tu dois transférer des fichiers depuis une clé. Quel port utilises-tu ?", s: "USB", m: "Excellent ! L'USB transporte données et courant."},
+            {d: "Un technicien veut utiliser un vieux port RS232. Lequel est-ce ?", s: "COM", m: "Expert ! Le port COM est très rare aujourd'hui."}
+        ];
+
+        function boot() {
+            pName = document.getElementById('p-name').value;
+            if(!pName) return alert("Veuillez entrer votre nom !");
+            document.getElementById('scr-intro').classList.remove('active');
+            document.getElementById('scr-game').classList.add('active');
+            next();
+        }
+
+        function next() {
+            if(step >= missions.length) return end();
+            document.getElementById('m-desc').innerText = missions[step].d;
+        }
+
+        function notify(msg, type) {
+            const f = document.getElementById('feedback');
+            f.innerText = msg;
+            f.className = type === 'ok' ? 'msg-correct' : 'msg-error';
+            f.style.display = 'block';
+            setTimeout(() => { f.style.display = 'none'; }, 2000);
+        }
+
+        function tap(id) {
+            if(id === missions[step].s) {
+                notify(missions[step].m, 'ok');
+                score += (hp > 60 ? 150 : 100);
+                step++;
+                document.getElementById('score').innerText = score;
+                next();
+            } else {
+                hp -= 20;
+                notify("Mauvais composant ! Système instable.", 'err');
+                document.getElementById('hp').innerText = hp;
+                if(hp <= 0) { alert("SYSTÈME CRASHÉ : REBOOT REQUIS."); location.reload(); }
+            }
+        }
+
+        function end() {
+            document.getElementById('scr-game').classList.remove('active');
+            document.getElementById('scr-end').classList.add('active');
+            document.getElementById('res-name').innerText = pName.toUpperCase();
+            document.getElementById('res-score').innerText = score;
+            let r = "Technicien Débutant";
+            if(score > 1000) r = "Expert en Maintenance";
+            if(score > 1300) r = "MAÎTRE DE L'UNITÉ CENTRALE";
+            document.getElementById('res-rank').innerText = r;
+        }
+    </script>
+</body>
+</html>

@@ -98,17 +98,18 @@
     <script>
         let score = 0, hp = 100, step = 0, pName = "";
         
-        // Liste des missions avec la nouvelle formulation "Problème -> Action"
+        // Liste des missions - 10 questions basées exactement sur le PPT
         const missions = [
-            {d: "L'ordinateur ne reçoit aucune électricité. Que vas-tu faire ?", s: "PSU", m: "Correct ! Le Bloc d'Alimentation donne l'énergie."},
-            {d: "Le Processeur chauffe dangereusement ! Comment le refroidir ?", s: "FAN", m: "Parfait ! Le Ventilateur évacue la chaleur."},
-            {d: "Les composants sont déconnectés. Sur quoi dois-tu les brancher ?", s: "MOBO", m: "Exact ! La Carte Mère relie tout le système."},
-            {d: "Internet ne marche pas. Quel câble dois-tu brancher ?", s: "ETH", m: "Bien joué ! Le port Ethernet (RJ45) assure le réseau."},
-            {d: "L'écran reste noir. Sur quelle prise branches-tu le moniteur ?", s: "HDMI", m: "Félicitations ! C'est le port Vidéo (HDMI/VGA)."},
-            {d: "Tu as une très vieille souris à fiche ronde. Où la branches-tu ?", s: "PS2", m: "Bravo ! C'est le port PS/2, l'ancêtre de l'USB."},
-            {d: "Tu veux écouter de la musique. Sur quelle prise branches-tu le casque ?", s: "JACK", m: "Correct ! La prise verte est la sortie Audio."},
-            {d: "Tu dois transférer des fichiers depuis une clé. Quel port utilises-tu ?", s: "USB", m: "Excellent ! L'USB transporte données et courant."},
-            {d: "Un technicien veut utiliser un vieux port RS232. Lequel est-ce ?", s: "COM", m: "Expert ! Le port COM est très rare aujourd'hui."}
+            {d: "L'ordinateur ne démarre pas. Quel composant donne l'électricité stable ?", s: "PSU", m: "Correct ! Le bloc d'alimentation fournit l'énergie."},
+            {d: "Le processeur a trop chaud ! Qui doit faire circuler l'air pour le refroidir ?", s: "FAN", m: "Parfait ! Le ventilateur évite la surchauffe."},
+            {d: "Qui connecte tous les composants (processeur, RAM, disque dur) ensemble ?", s: "MOBO", m: "Exact ! La carte mère relie tout le monde."},
+            {d: "Je veux relier l'ordinateur à un réseau par câble. Quel port choisir ?", s: "ETH", m: "Super ! Le port Ethernet relie au réseau."},
+            {d: "Je veux envoyer l'image de l'ordinateur vers un écran. Quelle prise utiliser ?", s: "HDMI", m: "Bien joué ! Le port VGA/HDMI envoie l'image."},
+            {d: "Je veux écouter du son. Quelle est la prise verte de sortie ?", s: "JACK", m: "Oui ! La prise audio verte est pour la sortie."},
+            {d: "Ce port fait circuler des informations et de l'électricité. Lequel est-ce ?", s: "USB", m: "Parfait ! L'USB gère infos et électricité."},
+            {d: "C'est une prise ancienne, presque remplacée par l'USB aujourd'hui.", s: "PS2", m: "Exact ! Le port PS/2 est ancien."},
+            {d: "Ce port (RS232) est très rarement utilisé aujourd'hui.", s: "COM", m: "Expert ! Le port COM est très rare."},
+            {d: "Quel port universel a remplacé la plupart des anciennes prises ?", s: "USB", m: "Correct ! L'USB est le nouveau standard."}
         ];
 
         function boot() {
